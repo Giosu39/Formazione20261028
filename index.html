@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Formazione a 8</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: una colonna centrata, il campo è il protagonista ed esce bene in uno screenshot. */
+:root{
+  --bg:#eef1ea; --surface:#ffffff; --ink:#17201a; --muted:#5d6b61; --line:#d5dcd2;
+  --turf-a:#2f8a4a; --turf-b:#2a7f43; --chalk:#f4f7ef;
+  --kit:#c8202f; --kit-ink:#fff6e8; --gk:#1f6fd1; --accent:#c8202f;
+  --sel:#ffd23f;
+  --f-display:"Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --f-body:"Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111814; --surface:#1a231d; --ink:#e8eee6; --muted:#9aa89e; --line:#2c3830;
+  --turf-a:#256f3b; --turf-b:#216636; --chalk:#e9efe4;
+  --kit:#d8323f; --kit-ink:#fff6e8; --gk:#2a78dc; --accent:#ff5c66; --sel:#ffd23f;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111814; --surface:#1a231d; --ink:#e8eee6; --muted:#9aa89e; --line:#2c3830;
+  --turf-a:#256f3b; --turf-b:#216636; --chalk:#e9efe4;
+  --kit:#d8323f; --kit-ink:#fff6e8; --gk:#2a78dc; --accent:#ff5c66; --sel:#ffd23f;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:540px;margin:0 auto;display:grid;gap:16px}
+header h1{font-family:var(--f-display);font-weight:900;font-size:clamp(44px,12vw,72px);line-height:.86;margin:0;letter-spacing:.01em;text-transform:uppercase}
+header h1 span{color:var(--accent)}
+header p{margin:8px 0 0;color:var(--muted)}
+
+.label{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 8px}
+.modules{display:flex;flex-wrap:wrap;gap:8px}
+.mod{font-family:var(--f-display);font-weight:700;font-size:22px;letter-spacing:.03em;padding:5px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums}
+.mod[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button:focus-visible{outline:3px solid var(--sel);outline-offset:2px}
+
+.pitch{position:relative;width:100%;aspect-ratio:2/3;border-radius:14px;overflow:hidden;
+  background:repeating-linear-gradient(180deg,var(--turf-a) 0 8.33%,var(--turf-b) 8.33% 16.66%);
+  box-shadow:inset 0 0 0 6px rgba(0,0,0,.08)}
+.pitch svg.lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.badge{position:absolute;left:5.5%;top:4.5%;font-family:var(--f-display);font-weight:900;font-size:clamp(28px,8vw,44px);line-height:1;color:var(--chalk);opacity:.92;font-variant-numeric:tabular-nums;pointer-events:none}
+
+.slot{position:absolute;transform:translate(-50%,-50%);display:grid;justify-items:center;gap:2px;background:none;border:0;padding:4px;cursor:grab;color:var(--chalk);
+  width:24%;max-width:110px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+  transition:left .45s cubic-bezier(.2,.8,.2,1),top .45s cubic-bezier(.2,.8,.2,1)}
+.slot .shirt{width:clamp(42px,12vw,60px);height:auto;filter:drop-shadow(0 3px 2px rgba(0,0,0,.25));transition:transform .15s}
+.slot .shirt path{fill:var(--kit)}
+.slot.gk .shirt path{fill:var(--gk)}
+.slot.empty{cursor:default}
+.slot.empty .shirt path{fill:rgba(255,255,255,.12);stroke:var(--chalk);stroke-width:2;stroke-dasharray:4 3}
+.slot .shirt text{font-family:var(--f-display);font-weight:900;font-size:22px;fill:var(--kit-ink)}
+.slot .name{font-weight:700;font-size:clamp(11.5px,3.2vw,14px);background:rgba(10,30,15,.62);padding:1px 8px;border-radius:6px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.slot .role{font-size:9.5px;font-weight:700;letter-spacing:.12em;opacity:.8}
+.slot.picked .shirt{transform:scale(1.12)}
+.slot.picked .name{background:var(--sel);color:#1d1a08}
+.slot.over .shirt{transform:scale(1.18)}
+.slot.over .name{outline:2px solid var(--sel)}
+.slot.ghosted{opacity:.35}
+
+.bench{display:flex;flex-wrap:wrap;gap:8px;min-height:46px;align-items:center;padding:8px;border:1.5px dashed var(--line);border-radius:12px}
+.bench.over{border-color:var(--sel);background:color-mix(in srgb,var(--sel) 12%,transparent)}
+.chip{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;font:600 14px var(--f-body);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.chip.picked{border-color:var(--sel);box-shadow:0 0 0 3px color-mix(in srgb,var(--sel) 45%,transparent)}
+.chip.ghosted{opacity:.35}
+.bench .none{color:var(--muted);font-size:13.5px;padding:0 4px}
+
+.ghost{position:fixed;left:0;top:0;z-index:50;pointer-events:none;display:grid;justify-items:center;gap:2px;transform:translate(-50%,-50%) scale(1.15);color:var(--chalk)}
+.ghost .shirt{width:60px;filter:drop-shadow(0 8px 8px rgba(0,0,0,.35))}
+.ghost .shirt path{fill:var(--kit)}
+.ghost .shirt text{font-family:var(--f-display);font-weight:900;font-size:22px;fill:var(--kit-ink)}
+.ghost .name{font-weight:700;font-size:14px;background:var(--sel);color:#1d1a08;padding:1px 8px;border-radius:6px;white-space:nowrap}
+
+.hint{font-size:13.5px;color:var(--muted);margin:0}
+.reset{justify-self:start;font:600 14px var(--f-body);color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:10px;padding:9px 14px;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.slot,.slot .shirt{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Formazione <span>a 8</span></h1>
+    <p>Scegli il modulo e trascina i giocatori: se lasci uno sopra un altro, si scambiano di posto.</p>
+  </header>
+
+  <div>
+    <p class="label">Modulo</p>
+    <div class="modules" id="modules"></div>
+  </div>
+
+  <div class="pitch" id="pitch">
+    <svg class="lines" viewBox="0 0 200 300" preserveAspectRatio="none" aria-hidden="true">
+      <g fill="none" stroke="var(--chalk)" stroke-width="1.6" opacity=".85">
+        <rect x="8" y="8" width="184" height="284"/>
+        <line x1="8" y1="150" x2="192" y2="150"/>
+        <circle cx="100" cy="150" r="24"/>
+        <rect x="50" y="8" width="100" height="40"/>
+        <rect x="50" y="252" width="100" height="40"/>
+        <rect x="78" y="2" width="44" height="6"/>
+        <rect x="78" y="292" width="44" height="6"/>
+      </g>
+      <g fill="var(--chalk)" opacity=".85"><circle cx="100" cy="150" r="2"/><circle cx="100" cy="36" r="1.8"/><circle cx="100" cy="264" r="1.8"/></g>
+    </svg>
+    <div class="badge" id="badge"></div>
+    <div id="slots"></div>
+  </div>
+
+  <div>
+    <p class="label">Fuori dal campo</p>
+    <div class="bench" id="bench"></div>
+  </div>
+
+  <p class="hint">Si può anche toccare un giocatore e poi toccare il posto dove metterlo. Trascina qualcuno qui sopra per toglierlo dal campo.</p>
+  <button class="reset" id="reset" type="button">Rimetti tutti in campo</button>
+</div>
+
+<script>
+(function(){
+const PLAYERS = ["Giosuè","Matteo","Luca","Di Gioia","Peppe","Cuna","Mimmo","Vincenzo"];
+const INIT = ["GI","MA","LU","DG","PE","CU","MI","VI"];
+const ROLE_NAME = {POR:"Porta",DIF:"Difesa",CEN:"Centrocampo",TRQ:"Trequarti",ATT:"Attacco"};
+const GK = {r:"POR",x:50,y:88};
+const row = (r,y,xs)=>xs.map(x=>({r,x,y}));
+const MODULES = [
+  {label:"3-3-1", slots:[GK,...row("DIF",70,[20,50,80]),...row("CEN",48,[20,50,80]),...row("ATT",25,[50])]},
+  {label:"3-2-2", slots:[GK,...row("DIF",70,[20,50,80]),...row("CEN",48,[33,67]),...row("ATT",25,[30,70])]},
+  {label:"2-3-2", slots:[GK,...row("DIF",70,[32,68]),...row("CEN",48,[17,50,83]),...row("ATT",25,[30,70])]},
+  {label:"3-1-2-1", slots:[GK,...row("DIF",72,[20,50,80]),...row("CEN",56,[50]),...row("TRQ",39,[28,72]),...row("ATT",21,[50])]},
+  {label:"2-4-1", slots:[GK,...row("DIF",70,[32,68]),...row("CEN",48,[14,38,62,86]),...row("ATT",25,[50])]},
+  {label:"4-2-1", slots:[GK,...row("DIF",70,[14,38,62,86]),...row("CEN",47,[32,68]),...row("ATT",25,[50])]},
+];
+const $ = id=>document.getElementById(id);
+const KEY = "formazione8-v1";
+let state = {m:0, slots:[0,1,2,3,4,5,6,7]};
+try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s && MODULES[s.m] && Array.isArray(s.slots) && s.slots.length===8) state = s; }catch(_){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(_){} }
+
+let picked = null; // {kind:"slot",i} | {kind:"bench",p}
+
+function shirt(text){
+  return '<svg class="shirt" viewBox="0 0 64 60" aria-hidden="true"><path d="M20 4 L8 10 L2 24 L12 28 L14 22 L14 56 L50 56 L50 22 L52 28 L62 24 L56 10 L44 4 C42 9 37 12 32 12 C27 12 22 9 20 4 Z"/>'
+    + (text?'<text x="32" y="44" text-anchor="middle">'+text+'</text>':'') + '</svg>';
+}
+
+function render(){
+  const mod = MODULES[state.m];
+  $("modules").innerHTML = MODULES.map((M,i)=>'<button class="mod" type="button" data-m="'+i+'" aria-pressed="'+(i===state.m)+'">'+M.label+'</button>').join("");
+  $("badge").textContent = mod.label;
+  const box = $("slots");
+  if(box.children.length!==8) box.innerHTML = Array.from({length:8},(_,i)=>'<button class="slot" type="button" data-i="'+i+'"></button>').join("");
+  mod.slots.forEach((s,i)=>{
+    const el = box.children[i], p = state.slots[i];
+    el.style.left = s.x+"%"; el.style.top = s.y+"%";
+    el.className = "slot"+(s.r==="POR"?" gk":"")+(p==null?" empty":"")+(picked&&picked.kind==="slot"&&picked.i===i?" picked":"");
+    el.setAttribute("aria-label", ROLE_NAME[s.r]+": "+(p==null?"posto libero":PLAYERS[p]));
+    el.innerHTML = shirt(p==null?"":INIT[p]) + '<span class="name">'+(p==null?"Libero":PLAYERS[p])+'</span><span class="role">'+s.r+'</span>';
+  });
+  const out = PLAYERS.map((_,i)=>i).filter(i=>!state.slots.includes(i));
+  $("bench").innerHTML = out.length
+    ? out.map(p=>'<button class="chip'+(picked&&picked.kind==="bench"&&picked.p===p?" picked":"")+'" type="button" data-p="'+p+'">'+PLAYERS[p]+'</button>').join("")
+    : '<span class="none">Tutti in campo.</span>';
+}
+
+// sposta "from" su "to": scambio tra posti, entrata dalla panchina, uscita verso la panchina
+function move(from, to){
+  if(!from || !to) return;
+  if(to.kind==="slot"){
+    if(from.kind==="slot"){ if(from.i===to.i) return; const t=state.slots[to.i]; state.slots[to.i]=state.slots[from.i]; state.slots[from.i]=t; }
+    else { state.slots[to.i] = from.p; }
+  } else if(to.kind==="bench" && from.kind==="slot"){ state.slots[from.i] = null; }
+  save();
+}
+
+function sourceOf(el){
+  const s = el.closest(".slot"); if(s){ const i=+s.dataset.i; return state.slots[i]==null?null:{kind:"slot",i}; }
+  const c = el.closest(".chip"); if(c) return {kind:"bench",p:+c.dataset.p};
+  return null;
+}
+function targetAt(x,y){
+  const el = document.elementFromPoint(x,y); if(!el) return null;
+  const s = el.closest(".slot"); if(s) return {kind:"slot",i:+s.dataset.i, el:s};
+  const b = el.closest("#bench"); if(b) return {kind:"bench", el:b};
+  return null;
+}
+function playerOf(src){ return src.kind==="slot" ? state.slots[src.i] : src.p; }
+
+// trascinamento con dito o mouse
+let drag = null;
+document.addEventListener("pointerdown", e=>{
+  if(e.button!==0) return;
+  const src = sourceOf(e.target); if(!src) return;
+  drag = {src, x0:e.clientX, y0:e.clientY, started:false, ghost:null, over:null, el:e.target.closest(".slot,.chip"), id:e.pointerId};
+});
+document.addEventListener("pointermove", e=>{
+  if(!drag || e.pointerId!==drag.id) return;
+  if(!drag.started){
+    if(Math.hypot(e.clientX-drag.x0, e.clientY-drag.y0) < 8) return;
+    drag.started = true; picked = null; render();
+    const p = playerOf(drag.src);
+    const g = document.createElement("div"); g.className="ghost";
+    g.innerHTML = shirt(INIT[p]) + '<span class="name">'+PLAYERS[p]+'</span>';
+    if(drag.src.kind==="slot" && drag.src.i===0) g.querySelector("path").style.fill="var(--gk)";
+    document.body.appendChild(g); drag.ghost = g;
+    const srcEl = drag.src.kind==="slot" ? $("slots").children[drag.src.i] : $("bench").querySelector('[data-p="'+drag.src.p+'"]');
+    if(srcEl) srcEl.classList.add("ghosted");
+  }
+  e.preventDefault();
+  drag.ghost.style.left = e.clientX+"px"; drag.ghost.style.top = e.clientY+"px";
+  const t = targetAt(e.clientX, e.clientY);
+  if(drag.over && (!t || t.el!==drag.over)) drag.over.classList.remove("over");
+  if(t && !(t.kind==="bench" && drag.src.kind==="bench")){ t.el.classList.add("over"); drag.over=t.el; } else drag.over=null;
+}, {passive:false});
+function endDrag(e){
+  if(!drag || e.pointerId!==drag.id) return;
+  const d = drag; drag = null;
+  if(!d.started) return; // era un tocco: lo gestisce il click
+  d.ghost.remove();
+  if(d.over) d.over.classList.remove("over");
+  const t = e.type==="pointerup" ? targetAt(e.clientX, e.clientY) : null;
+  move(d.src, t);
+  lastDrag = Date.now();
+  render();
+}
+let lastDrag = 0;
+document.addEventListener("pointerup", endDrag);
+document.addEventListener("pointercancel", endDrag);
+
+// tocco: scegli, poi tocca dove metterlo
+document.addEventListener("click", e=>{
+  if(Date.now()-lastDrag < 400) return;
+  const mod = e.target.closest(".mod");
+  if(mod){ state.m = +mod.dataset.m; picked=null; save(); render(); return; }
+  const slot = e.target.closest(".slot"), chip = e.target.closest(".chip"), bench = e.target.closest("#bench");
+  if(!slot && !bench) { if(picked && !e.target.closest(".pitch")){ picked=null; render(); } return; }
+  const here = slot ? {kind:"slot", i:+slot.dataset.i} : chip ? {kind:"bench", p:+chip.dataset.p} : {kind:"bench"};
+  if(!picked){
+    if(here.kind==="slot" && state.slots[here.i]==null) return;
+    if(here.kind==="bench" && here.p==null) return;
+    picked = here; render(); return;
+  }
+  const same = picked.kind===here.kind && (here.kind==="slot" ? picked.i===here.i : picked.p===here.p);
+  if(same){ picked=null; render(); return; }
+  if(here.kind==="bench" && picked.kind==="bench"){ picked = here.p!=null ? here : null; render(); return; }
+  if(here.kind==="bench" && picked.kind==="slot" && here.p!=null){ // posto ↔ panchina: scambio
+    state.slots[picked.i] = here.p; save(); picked=null; render(); return;
+  }
+  if(picked.kind==="bench" && here.kind==="slot"){ move(picked, here); }
+  else move(picked, here);
+  picked = null; render();
+});
+
+$("reset").addEventListener("click", ()=>{ state.slots=[0,1,2,3,4,5,6,7]; picked=null; save(); render(); });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && picked){ picked=null; render(); } });
+
+render();
+})();
+</script>
+</body>
+</html>
